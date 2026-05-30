@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@font-face {
+    font-family: GoudyStM;
+    font-style: normal;
+    font-weight: 200 600;
+    src:
+        url("/fonts/GoudyStM.woff2") format("woff2"),
+        url("/fonts/GoudyStM.woff") format("woff"),
+        url("/fonts/GoudyStM.eot") format("eot");
+}
+
+@theme {
+    --font-goudy: "GoudyStM", sans-serif;
+}
+
+html {
+    color-scheme: dark;
+}
