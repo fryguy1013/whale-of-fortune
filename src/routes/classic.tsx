@@ -1,6 +1,13 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import z from "zod";
-import allCharactersRaw from "./resources/data/roles.json";
+import { type Character, getAlignmentStr } from "../botc/characters";
+import { charactersQueryOptions } from "../botc/characters.query";
+import { getPlayerCountsForGameSize } from "../botc/gamesize";
+
+// document.querySelector("input[placeholder=Search]").value = "${role}";
+// document.querySelector("input[placeholder=Search]").dispatchEvent(new Event("input", { bubbles: true }));
+// document.querySelector("input[placeholder=Search]").dispatchEvent(new Event("input", { bubbles: true }));
 
 const excludedCharacterIds = [
     "atheist",
@@ -24,50 +31,6 @@ function getRandomFromSequence<T>(seq: T[], exclude: T[]) {
         const i = getRandomInt(seq.length);
         if (exclude.includes(seq[i])) continue;
         return seq[i];
-    }
-}
-
-const playerCounts: Record<number, { townsfolk: number; outsider: number; minion: number; demon: number }> = {
-    5: { townsfolk: 3, outsider: 0, minion: 1, demon: 1 },
-    6: { townsfolk: 3, outsider: 1, minion: 1, demon: 1 },
-    7: { townsfolk: 5, outsider: 0, minion: 1, demon: 1 },
-    8: { townsfolk: 5, outsider: 1, minion: 1, demon: 1 },
-    9: { townsfolk: 5, outsider: 2, minion: 1, demon: 1 },
-    10: { townsfolk: 7, outsider: 0, minion: 2, demon: 1 },
-    11: { townsfolk: 7, outsider: 1, minion: 2, demon: 1 },
-    12: { townsfolk: 7, outsider: 2, minion: 2, demon: 1 },
-    13: { townsfolk: 9, outsider: 0, minion: 3, demon: 1 },
-    14: { townsfolk: 9, outsider: 1, minion: 3, demon: 1 },
-    15: { townsfolk: 9, outsider: 2, minion: 3, demon: 1 },
-};
-
-const JsonCharacter = z.object({
-    id: z.string(),
-    name: z.string(),
-    team: z.enum(["townsfolk", "outsider", "minion", "demon", "traveller", "fabled", "loric"]),
-    edition: z.enum(["carousel", "tb", "bmr", "snv", "fabled", "loric"]),
-    firstNightReminder: z.string().optional(),
-    reminders: z.array(z.string()),
-    setup: z.boolean(),
-    ability: z.string(),
-    flavor: z.string(),
-});
-type Character = z.infer<typeof JsonCharacter>;
-
-function getAlignmentStr(character: Character) {
-    switch (character.team) {
-        case "townsfolk":
-        case "outsider":
-            return "g";
-
-        case "minion":
-        case "demon":
-            return "e";
-
-        case "traveller":
-        case "fabled":
-        case "loric":
-            return "";
     }
 }
 
@@ -154,27 +117,30 @@ function PlayerView({ player, allCharacters }: { player: Player; allCharacters: 
     );
 }
 
-function App() {
+export const Route = createFileRoute("/classic")({
+    loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(charactersQueryOptions),
+    component: RouteComponent,
+});
+
+function RouteComponent() {
     const [numPlayers, setNumPlayers] = useState(12);
     const [sent, setSent] = useState(0);
     const [mario, setMario] = useState(false);
     const [drunk, setDrunk] = useState(false);
     const [lunatic, setLunatic] = useState(false);
     const [players, setPlayers] = useState<Player[]>([]);
+    const charactersQuery = useSuspenseQuery(charactersQueryOptions);
 
-    const { data: allCharacters, error } = useMemo(() => {
-        const ret = z.array(JsonCharacter).safeParse(allCharactersRaw);
-        if (ret.success) {
-            ret.data = ret.data.filter((c) => !excludedCharacterIds.includes(c.id));
-        }
-        return ret;
-    }, []);
+    const allCharacters = useMemo(() => {
+        return charactersQuery.data?.filter((c) => !excludedCharacterIds.includes(c.id));
+    }, [charactersQuery]);
 
     const buildBag = () => {
         if (!allCharacters) return;
         const prefix = Math.random().toString(36).slice(2, 10);
 
-        const playerCount = { ...playerCounts[numPlayers] };
+        const playerCount = getPlayerCountsForGameSize(numPlayers);
+        if (!playerCount) return;
 
         if (mario) {
             playerCount.minion--;
@@ -213,7 +179,7 @@ function App() {
         );
     };
 
-    if (error) return <div>{z.prettifyError(error)}</div>;
+    //if (error) return <div>{z.prettifyError(error)}</div>;
 
     return (
         <div className="flex flex-col max-w-screen-lg items-center mx-auto">
@@ -313,5 +279,3 @@ function App() {
         </div>
     );
 }
-
-export default App;
