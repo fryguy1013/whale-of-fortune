@@ -11,15 +11,17 @@ import { getPlayerCountsForGameSize } from "../botc/gamesize";
 
 const excludedCharacterIds = [
     "atheist",
+    "baron",
     "engineer",
-    "pithag",
     "heretic",
+    "kazali",
     "legion",
+    "lordoftyphon",
+    "pithag",
+    "summoner",
     "drunk",
     "lunatic",
     "marionette",
-    "summoner",
-    "lordoftyphon",
 ];
 
 function getRandomInt(max: number) {
