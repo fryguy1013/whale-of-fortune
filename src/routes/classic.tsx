@@ -28,12 +28,10 @@ function getRandomInt(max: number) {
     return Math.floor(Math.random() * max);
 }
 
-function getRandomFromSequence<T>(seq: T[], exclude: T[]) {
-    while (true) {
-        const i = getRandomInt(seq.length);
-        if (exclude.includes(seq[i])) continue;
-        return seq[i];
-    }
+function getRandomFromSequence<T>(seq: T[], exclude: T[]): T | undefined {
+    const remaining = seq.filter((c) => !exclude.includes(c));
+    if (remaining.length === 0) return undefined;
+    return remaining[getRandomInt(remaining.length)];
 }
 
 type Player = {
@@ -67,7 +65,7 @@ function CharacterView({ character }: { character: Character }) {
 }
 
 function PlayerView({ player, allCharacters }: { player: Player; allCharacters: Character[] }) {
-    const [choices, setChoices] = useState<Character[]>([]);
+    const [choices, setChoices] = useState<{ current: Character[]; seen: Character[] }>({ current: [], seen: [] });
 
     useEffect(() => {
         if (!allCharacters) return;
@@ -76,26 +74,41 @@ function PlayerView({ player, allCharacters }: { player: Player; allCharacters: 
 
         const c: Character[] = [];
         while (c.length < 3) {
-            c.push(getRandomFromSequence(possibles, c));
+            const next = getRandomFromSequence(possibles, c);
+            if (next === undefined) return;
+            c.push(next);
         }
 
-        setChoices(c);
+        setChoices({
+            current: c,
+            seen: c,
+        });
     }, [allCharacters]);
 
     const mulligan = () => {
         const c: Character[] = [];
+        const seen = [...choices.seen];
         const possibles = allCharacters.filter((c) => c.team === player.team);
-        const num = Math.max(1, choices.length - 1);
+        const num = Math.max(1, choices.current.length - 1);
         while (c.length < num) {
-            c.push(getRandomFromSequence(possibles, c));
+            const next = getRandomFromSequence(possibles, seen);
+            if (next === undefined) return;
+            c.push(next);
+            seen.push(next);
         }
 
-        setChoices(c);
+        setChoices({ current: c, seen });
     };
 
     const reroll = (index: number) => {
         const possibles = allCharacters.filter((c) => c.team === player.team);
-        setChoices(choices.map((c, i) => (index !== i ? c : getRandomFromSequence(possibles, choices))));
+        const current = [...choices.current];
+        const seen = [...choices.seen];
+        const next = getRandomFromSequence(possibles, seen);
+        if (next === undefined) return;
+        current[index] = next;
+        seen.push(current[index]);
+        setChoices({ current, seen });
     };
 
     return (
@@ -110,7 +123,7 @@ function PlayerView({ player, allCharacters }: { player: Player; allCharacters: 
                     🎲
                 </button>
             </div>
-            {choices.map((c, i) => (
+            {choices.current.map((c, i) => (
                 <div onClick={() => reroll(i)} className="cursor-pointer" key={i}>
                     <CharacterView character={c} />
                 </div>
