@@ -1,6 +1,5 @@
 import { atomWithStorage } from "jotai/utils";
 
-
 export const defaultExcludedCharacterIds = [
     "atheist",
     "baron",
