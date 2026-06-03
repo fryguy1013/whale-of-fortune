@@ -9,15 +9,11 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ClassicRouteImport } from './routes/classic'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ClassicIndexRouteImport } from './routes/classic.index'
+import { Route as ClassicCharactersRouteImport } from './routes/classic.characters'
 
-const ClassicRoute = ClassicRouteImport.update({
-  id: '/classic',
-  path: '/classic',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -28,46 +24,53 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ClassicIndexRoute = ClassicIndexRouteImport.update({
+  id: '/classic/',
+  path: '/classic/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClassicCharactersRoute = ClassicCharactersRouteImport.update({
+  id: '/classic/characters',
+  path: '/classic/characters',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/classic': typeof ClassicRoute
+  '/classic/characters': typeof ClassicCharactersRoute
+  '/classic/': typeof ClassicIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/classic': typeof ClassicRoute
+  '/classic/characters': typeof ClassicCharactersRoute
+  '/classic': typeof ClassicIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/classic': typeof ClassicRoute
+  '/classic/characters': typeof ClassicCharactersRoute
+  '/classic/': typeof ClassicIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/classic'
+  fullPaths: '/' | '/about' | '/classic/characters' | '/classic/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/classic'
-  id: '__root__' | '/' | '/about' | '/classic'
+  to: '/' | '/about' | '/classic/characters' | '/classic'
+  id: '__root__' | '/' | '/about' | '/classic/characters' | '/classic/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  ClassicRoute: typeof ClassicRoute
+  ClassicCharactersRoute: typeof ClassicCharactersRoute
+  ClassicIndexRoute: typeof ClassicIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/classic': {
-      id: '/classic'
-      path: '/classic'
-      fullPath: '/classic'
-      preLoaderRoute: typeof ClassicRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -82,13 +85,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/classic/': {
+      id: '/classic/'
+      path: '/classic'
+      fullPath: '/classic/'
+      preLoaderRoute: typeof ClassicIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/classic/characters': {
+      id: '/classic/characters'
+      path: '/classic/characters'
+      fullPath: '/classic/characters'
+      preLoaderRoute: typeof ClassicCharactersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  ClassicRoute: ClassicRoute,
+  ClassicCharactersRoute: ClassicCharactersRoute,
+  ClassicIndexRoute: ClassicIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

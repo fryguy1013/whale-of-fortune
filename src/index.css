@@ -12,6 +12,7 @@
 
 @theme {
     --font-goudy: "GoudyStM", sans-serif;
+    --color-token-bg: oklch(0.9581 0.0383 80.03);
 }
 
 html {

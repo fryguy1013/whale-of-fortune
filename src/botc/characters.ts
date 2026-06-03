@@ -13,8 +13,8 @@ export const JsonCharacter = z.object({
 });
 export type Character = z.infer<typeof JsonCharacter>;
 
-export function getAlignmentStr(character: Character) {
-    switch (character.team) {
+export function getAlignmentStr(team: Character["team"]) {
+    switch (team) {
         case "townsfolk":
         case "outsider":
             return "g";

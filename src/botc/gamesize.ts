@@ -1,4 +1,8 @@
-type GamePlayerCount = {
+import * as z from "zod";
+
+export type CharacterType = "townsfolk" | "outsider" | "minion" | "demon";
+
+export type GamePlayerCount = {
     townsfolk: number;
     outsider: number;
     minion: number;
@@ -21,4 +25,50 @@ const playerCounts: Record<number, GamePlayerCount> = {
 
 export function getPlayerCountsForGameSize(gameSize: number): GamePlayerCount | undefined {
     return { ...playerCounts[gameSize] };
+}
+
+export const BagOptions = z.object({
+    numPlayers: z.number().min(6).max(15),
+    mario: z.boolean(),
+    drunk: z.boolean(),
+    lunatic: z.boolean(),
+    sent: z.number().min(-1).max(1),
+});
+
+export type CalculatePlayerCountsOptions = z.infer<typeof BagOptions>;
+
+export function calculatePlayerCounts({ numPlayers, mario, drunk, lunatic, sent }: CalculatePlayerCountsOptions): GamePlayerCount | undefined {
+    const playerCount = getPlayerCountsForGameSize(numPlayers);
+    if (!playerCount) return;
+
+    if (mario) {
+        playerCount.minion--;
+        playerCount.townsfolk++;
+    }
+    if (drunk) {
+        playerCount.outsider--;
+        playerCount.townsfolk++;
+    }
+    if (lunatic) {
+        playerCount.outsider--;
+        playerCount.demon++;
+    }
+    if (sent === 1) {
+        playerCount.outsider++;
+        playerCount.townsfolk--;
+    }
+    if (sent === -1) {
+        playerCount.outsider--;
+        playerCount.townsfolk++;
+    }
+
+    return playerCount;
+}
+
+export function calculatePlayersList(playerCount: GamePlayerCount): CharacterType[] {
+    return (["demon", "minion", "outsider", "townsfolk"] as const).flatMap((team) => {
+        const count = playerCount[team] as number;
+        if (count <= 0) return [];
+        return [...Array(count)].map(() => team);
+    });
 }
