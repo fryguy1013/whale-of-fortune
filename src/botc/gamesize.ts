@@ -37,7 +37,13 @@ export const BagOptions = z.object({
 
 export type CalculatePlayerCountsOptions = z.infer<typeof BagOptions>;
 
-export function calculatePlayerCounts({ numPlayers, mario, drunk, lunatic, sent }: CalculatePlayerCountsOptions): GamePlayerCount | undefined {
+export function calculatePlayerCounts({
+    numPlayers,
+    mario,
+    drunk,
+    lunatic,
+    sent,
+}: CalculatePlayerCountsOptions): GamePlayerCount | undefined {
     const playerCount = getPlayerCountsForGameSize(numPlayers);
     if (!playerCount) return;
 

@@ -6,7 +6,7 @@
                 "organizeImports": "on"
             }
         },
-        "includes": ["**", "!**/src/routeTree.gen.ts"]
+        "includes": ["**", "!**/src/routeTree.gen.ts", "!**/dist/**"]
     },
     "css": {
         "parser": {
@@ -20,11 +20,11 @@
         "indentWidth": 4,
         "lineWidth": 120,
         "lineEnding": "lf",
-        "includes": ["**", "!**/*.html", "!build/**", "!**/src/routeTree.gen.ts"]
+        "includes": ["**", "!**/*.html", "!build/**", "!**/dist/**", "!**/src/routeTree.gen.ts"]
     },
     "linter": {
         "enabled": true,
-        "includes": ["**", "!**/src/routeTree.gen.ts"],
+        "includes": ["**", "!**/dist/**", "!**/src/routeTree.gen.ts"],
         "rules": {
             "recommended": true,
             "a11y": "off",

@@ -1,16 +1,14 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import type { Character } from "../botc/characters";
-import {
-    type CharacterType,
-    calculatePlayerCounts,
-    calculatePlayersList,
-    getPlayerCountsForGameSize,
-} from "../botc/gamesize";
+import { charactersQueryOptions } from "../botc/characters.query";
+import { type CharacterType, calculatePlayerCounts, calculatePlayersList } from "../botc/gamesize";
 import { CharacterView } from "../components/character-token";
 import { Header } from "../components/header";
+import { SelectCharacters } from "../components/select-characters";
 
 export const Route = createFileRoute("/classic/")({
+    loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(charactersQueryOptions),
     component: RouteComponent,
 });
 
@@ -22,12 +20,14 @@ const tokensForCharacterType: Record<CharacterType, any> = {
 };
 
 function RouteComponent() {
+    const allCharacters = useSuspenseQuery(charactersQueryOptions).data;
     const navigate = useNavigate();
     const [numPlayers, setNumPlayers] = useState(12);
     const [sent, setSent] = useState(0);
     const [mario, setMario] = useState(false);
     const [drunk, setDrunk] = useState(false);
     const [lunatic, setLunatic] = useState(false);
+    const [showCharacters, setShowCharacters] = useState(false);
 
     const buildBag = () => {
         navigate({
@@ -139,10 +139,22 @@ function RouteComponent() {
                             </div>
                         </>
                     )}
-                    <hr className="border-slate-500 w-full m-5" />
+                    <hr className="border-slate-500 w-full m-2" />
+                    <div className="flex flex-row mx-0 items-center w-md">
+                        <button
+                            type="button"
+                            className={`w-auto flex flex-row border border-slate-500 w-full rounded-r-md mx-0 p-2 justify-center items-center ${showCharacters ? "bg-blue-200 text-black" : "bg-slate-800"}`}
+                            onClick={() => setShowCharacters(!showCharacters)}
+                        >
+                            Customize Characters
+                        </button>
+                    </div>
+
+                    {showCharacters && <SelectCharacters allCharacters={allCharacters} />}
+
                     <button
                         type="button"
-                        className={`w-auto text-3xl flex flex-row border border-slate-500 w-30 rounded-md mx-0 p-4 items-center bg-green-800 ${buttonAllowed ? "" : "opacity-50 cursor-not-allowed"}`}
+                        className={`w-auto text-3xl flex flex-row border border-slate-500 w-30 rounded-md my-4 mx-0 p-4 items-center bg-green-800 ${buttonAllowed ? "" : "opacity-50 cursor-not-allowed"}`}
                         onClick={() => {
                             if (buttonAllowed) buildBag();
                         }}

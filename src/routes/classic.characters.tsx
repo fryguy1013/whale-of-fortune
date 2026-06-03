@@ -1,12 +1,14 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-adapter";
+import { useAtomValue } from "jotai";
 import { useEffect, useMemo, useState } from "react";
 import type { Character } from "../botc/characters";
 import { charactersQueryOptions } from "../botc/characters.query";
 import { BagOptions, calculatePlayerCounts } from "../botc/gamesize";
 import { CharacterView } from "../components/character-token";
 import { Header } from "../components/header";
+import { excludedCharacters } from "../state";
 
 export const Route = createFileRoute("/classic/characters")({
     loader: ({ context: { queryClient } }) => queryClient.ensureQueryData(charactersQueryOptions),
@@ -17,21 +19,6 @@ export const Route = createFileRoute("/classic/characters")({
 // document.querySelector("input[placeholder=Search]").value = "${role}";
 // document.querySelector("input[placeholder=Search]").dispatchEvent(new Event("input", { bubbles: true }));
 // document.querySelector("input[placeholder=Search]").dispatchEvent(new Event("input", { bubbles: true }));
-
-const excludedCharacterIds = [
-    "atheist",
-    "baron",
-    "engineer",
-    "heretic",
-    "kazali",
-    "legion",
-    "lordoftyphon",
-    "pithag",
-    "summoner",
-    "drunk",
-    "lunatic",
-    "marionette",
-];
 
 function getRandomInt(max: number) {
     return Math.floor(Math.random() * max);
@@ -120,13 +107,14 @@ function PlayerView({ player, allCharacters }: { player: Player; allCharacters: 
 
 function RouteComponent() {
     const navigate = useNavigate();
+    const excludedCharacterIds = useAtomValue(excludedCharacters);
     const { numPlayers, mario, drunk, lunatic, sent } = Route.useSearch();
     const [players, setPlayers] = useState<Player[]>([]);
     const charactersQuery = useSuspenseQuery(charactersQueryOptions);
 
     const allCharacters = useMemo(() => {
         return charactersQuery.data?.filter((c) => !excludedCharacterIds.includes(c.id));
-    }, [charactersQuery]);
+    }, [charactersQuery, excludedCharacterIds]);
 
     const buildBag = () => {
         if (!allCharacters) return;
@@ -185,9 +173,22 @@ function RouteComponent() {
                         🎲 Reroll
                     </button>
                 </div>
+
+                <div className="flex flex-row mx-5 items-center w-auto">
+                    <a href="/whale-of-fortune-classic.json" download>
+                        <button
+                            type="button"
+                            className={
+                                "cursor-pointer w-auto flex flex-row border border-slate-500 w-30 rounded-md mx-0 p-2 items-center bg-slate-500"
+                            }
+                        >
+                            🗒️ Download Script
+                        </button>
+                    </a>
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 w-full border-t-1 border-white">
+            <div className="grid grid-cols-1 md:grid-cols-2 w-full border-t-1 border-white py-3">
                 {players.length === 0 ? (
                     <div className="p-10 col-span-2 text-xl text-center">Build a bag to see results...</div>
                 ) : (
