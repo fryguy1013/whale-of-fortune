@@ -7,7 +7,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootComponent() {
     return (
-        <div className="flex flex-col max-w-screen-md mx-auto">
+        <div className="flex flex-col max-w-screen-md md:max-w-screen-md mx-auto">
             <Outlet />
         </div>
     );

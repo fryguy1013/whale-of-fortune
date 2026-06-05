@@ -20,7 +20,7 @@ export function CharacterView({ character }: { character: PartialCharacter }) {
         )[character.team] ?? "border-slate-600";
 
     return (
-        <div className="flex flex-col items-center gap-2 select-none">
+        <div className="flex flex-col items-center gap-2 select-none w-full">
             <div className={`rounded-full bg-slate-600 ${color} border-3 overflow-hidden w-20`}>
                 <img
                     src={`/characters/${character.edition}/${character.id}${alignment ? "_" : ""}${alignment}.webp`}

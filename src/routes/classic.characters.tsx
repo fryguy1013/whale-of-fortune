@@ -86,16 +86,13 @@ function PlayerView({ player, allCharacters }: { player: Player; allCharacters: 
 
     return (
         <div className="flex flex-row items-center flex-grow bg-slate-900 border-b-0 border-white h-30">
-            <div className="flex flex-col items-end w-20">
-                {/* <div className="text-center">{player.name}</div> */}
-                <button
-                    type="button"
-                    className={"text-xl border border-slate-500 w-auto rounded-md m-0 p-1 bg-slate-800"}
-                    onClick={mulligan}
-                >
-                    🎲
-                </button>
-            </div>
+            <button
+                type="button"
+                className={"text-xl border border-slate-500 w-auto rounded-md m-0 mb-5 p-1 bg-slate-800"}
+                onClick={mulligan}
+            >
+                🎲
+            </button>
             {choices.current.map((c, i) => (
                 <div onClick={() => reroll(i)} className="w-25 cursor-pointer" key={i}>
                     <CharacterView character={c} />
@@ -149,43 +146,37 @@ function RouteComponent() {
         <div className="flex flex-col w-full">
             <Header />
 
-            <div className="flex bg-slate-800 w-full p-4 items-center gap-2">
-                <div className="flex flex-row mx-5 items-center w-auto">
+            <div className="flex flex-wrap bg-slate-800 w-full p-4 items-center gap-2">
+                <button
+                    type="button"
+                    className={
+                        "w-auto flex flex-row border border-slate-500 w-30 rounded-md mx-0 p-2 items-center bg-green-800"
+                    }
+                    onClick={() => navigate({ to: "/classic" })}
+                >
+                    🚀 Build New Bag
+                </button>
+
+                <button
+                    type="button"
+                    className={
+                        "w-auto flex flex-row border border-slate-500 w-30 rounded-md mx-0 p-2 items-center bg-green-800"
+                    }
+                    onClick={() => buildBag()}
+                >
+                    🎲 Reroll
+                </button>
+
+                <a href="/whale-of-fortune-classic.json" download>
                     <button
                         type="button"
                         className={
-                            "w-auto flex flex-row border border-slate-500 w-30 rounded-md mx-0 p-2 items-center bg-green-800"
+                            "cursor-pointer w-auto flex flex-row border border-slate-500 w-30 rounded-md mx-0 p-2 items-center bg-slate-500"
                         }
-                        onClick={() => navigate({ to: "/classic" })}
                     >
-                        🚀 Build New Bag
+                        🗒️ Download Script
                     </button>
-                </div>
-
-                <div className="flex flex-row mx-5 items-center w-auto">
-                    <button
-                        type="button"
-                        className={
-                            "w-auto flex flex-row border border-slate-500 w-30 rounded-md mx-0 p-2 items-center bg-green-800"
-                        }
-                        onClick={() => buildBag()}
-                    >
-                        🎲 Reroll
-                    </button>
-                </div>
-
-                <div className="flex flex-row mx-5 items-center w-auto">
-                    <a href="/whale-of-fortune-classic.json" download>
-                        <button
-                            type="button"
-                            className={
-                                "cursor-pointer w-auto flex flex-row border border-slate-500 w-30 rounded-md mx-0 p-2 items-center bg-slate-500"
-                            }
-                        >
-                            🗒️ Download Script
-                        </button>
-                    </a>
-                </div>
+                </a>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 w-full border-t-1 border-white py-3">
